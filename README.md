@@ -33,3 +33,6 @@ Java Network Key Protector Unlocker version 1.0.0 (20170830)
 Sent unlock packet to /10.1.1.11:68
 ```
 (exciting!  also the client machine successfully unlocks)
+
+
+With thanks to Edgar Olougouna of Microsoft for assistance with the protocol specifications, and beyond.
