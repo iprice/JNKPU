@@ -26,9 +26,9 @@ Will require administrative privileges on most operating systems due to binding 
 Note this is /not/ a full DHCP or BOOTP server, nor, most likely (due to port conflicts) will you be able to run it on the same IP address as a DHCP/BOOTP server.
 
 Sample run:
------
-# java net.coagulate.JNKPU.NetworkUnlock /etc/networkunlock.key
+
+```# java net.coagulate.JNKPU.NetworkUnlock /etc/networkunlock.key
 Java Network Key Protector Unlocker version 1.0.0 (20170830)
 Sent unlock packet to /10.1.1.11:68
------
+```
 (exciting!  also the client machine successfully unlocks)
