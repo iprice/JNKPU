@@ -16,8 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -43,9 +41,7 @@ public class Cryptography {
             loadPrivateKey(filename);
             Cipher rsa=Cipher.getInstance("RSA");
             rsa.init(Cipher.DECRYPT_MODE,key);
-        } catch (NoSuchAlgorithmException ex) {
-            System.err.println("Failed to load RSA algorithm - "+ex); System.exit(1);
-        } catch (NoSuchPaddingException ex) {
+        } catch (NoSuchPaddingException|NoSuchAlgorithmException ex) {
             System.err.println("Failed to load RSA algorithm - "+ex); System.exit(1);
         } catch (InvalidKeyException ex) {
             System.err.println("Failed to initialise RSA cipher with key - "+ex); System.exit(1);
@@ -63,11 +59,11 @@ public class Cryptography {
         FileInputStream fis;
         try {
             fis = new FileInputStream(f);
-            DataInputStream dis=new DataInputStream(fis);
-            byte [] rawkey=new byte[(int)f.length()];
-            dis.readFully(rawkey);
-            dis.close();
-
+            byte[] rawkey;
+            try (DataInputStream dis = new DataInputStream(fis)) {
+                rawkey = new byte[(int)f.length()];
+                dis.readFully(rawkey);
+            }
             PKCS8EncodedKeySpec keyspec=new PKCS8EncodedKeySpec(rawkey);
             KeyFactory kf=KeyFactory.getInstance("RSA");
             key=kf.generatePrivate(keyspec);
