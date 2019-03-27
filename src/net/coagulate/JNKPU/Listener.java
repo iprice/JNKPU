@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /** This class handles the common elements of a bitlocker server implementation.
  * This class listens to the network, and performs the necessary steps to convert a request into a reply.
@@ -19,9 +17,10 @@ import java.util.logging.Logger;
  */
 public abstract class Listener extends Thread{
 
-    private static boolean DEBUG=false; // debug the packet content at various stages
+    private static final boolean DEBUG=false; // debug the packet content at various stages
     protected DatagramSocket socket;
 
+    @Override
     public void run() {
         // common behaviour
         try {
@@ -36,8 +35,10 @@ public abstract class Listener extends Thread{
 
                     if (DEBUG) { System.out.println("Packet received from "+rxp.getAddress()+":"+rxp.getPort()+" len:"+rxp.getLength()); }
 
-                    dumpBuffer("Raw packet",rxp.getData());
-                    byte[] clientpayload=getPayload(rxp.getData());
+                    byte[] content=new byte[rxp.getLength()];
+                    System.arraycopy(rxp.getData(),0,content,0,rxp.getLength());
+                    byte[] clientpayload=getPayload(content);
+                    dumpBuffer("Raw packet",clientpayload);
                     if (DEBUG) { 
                         if (clientpayload==null) { System.out.println("Did not decode a valid BITLOCKER payload from this packet"); }
                     }
