@@ -5,9 +5,7 @@
  */
 package net.coagulate.JNKPU;
 
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 
 /** Implements the DHCPv4 specific parts of NKPU
@@ -19,9 +17,8 @@ public class DHCPv4 extends Listener {
     private static final boolean DEBUG=false;
     
     // Open the listener at initialisation
-    public DHCPv4() {
-        try { socket = new DatagramSocket(67); }
-        catch (SocketException e) { System.err.println("Failed to bind to IPV4 DHCP port (67) - "+e.toString()); }
+    public DHCPv4() throws SocketException {
+        socket = new DatagramSocket(67);
     }
 
     /** Returns the ADM payload from the DHCPv4 packet.
