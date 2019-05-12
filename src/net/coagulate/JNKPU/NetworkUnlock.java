@@ -50,7 +50,7 @@ public class NetworkUnlock {
                     DHCPv6 listenerv6=new DHCPv6();
                     listenerv6.start();
                 } catch (IOException e) {
-                    System.err.println("Failed to start IPv4 listener: "+e.getLocalizedMessage());
+                    System.err.println("Failed to start IPv6 listener: "+e.getLocalizedMessage());
                     if (strict) { System.exit(1); }
                 }
             }
