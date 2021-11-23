@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-/** Implements the DHCPv4 specific parts of NKPU
+/** Implements the DHCPv6 specific parts of NKPU
  *
  * Note this implementation is weak with bounds checking.
  * The JVM will prevent out of bounds reads, but the raw code assumes this protection.
