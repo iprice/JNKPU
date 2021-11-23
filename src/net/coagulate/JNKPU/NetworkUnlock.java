@@ -19,7 +19,7 @@ public class NetworkUnlock {
         
         private static boolean startipv4=true;
         private static boolean startipv6=true;
-        private static boolean strict=true;
+        private static boolean strict=false;
         private static String keyfile=null;
 
 	public static void main(String args[]) {
