@@ -52,7 +52,7 @@ public class Cryptography {
      * 
      * @param filename Filename of the private key (PKCS8, No password)
      */
-    private static void loadPrivateKey(String filename) {
+    public static void loadPrivateKey(String filename) {
         File f=new File(filename);
         FileInputStream fis;
         try {
