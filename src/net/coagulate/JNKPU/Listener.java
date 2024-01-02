@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.logging.Level;
 
 /** This class handles the common elements of a bitlocker server implementation.
  * This class listens to the network, and performs the necessary steps to convert a request into a reply.
@@ -33,15 +34,13 @@ public abstract class Listener extends Thread{
                     DatagramPacket rxp = new DatagramPacket(rx, rx.length);
                     socket.receive(rxp);
 
-                    if (DEBUG) { System.out.println("Packet received from "+rxp.getAddress()+":"+rxp.getPort()+" len:"+rxp.getLength()); }
+                    debug("Packet received from "+rxp.getAddress()+":"+rxp.getPort()+" len:"+rxp.getLength());
 
                     byte[] content=new byte[rxp.getLength()];
                     System.arraycopy(rxp.getData(),0,content,0,rxp.getLength());
                     byte[] clientpayload=getPayload(content);
                     dumpBuffer("Raw packet",clientpayload);
-                    if (DEBUG) { 
-                        if (clientpayload==null) { System.out.println("Did not decode a valid BITLOCKER payload from this packet"); }
-                    }
+                    if (clientpayload==null) { debug("Did not decode a valid BITLOCKER payload from this packet"); }
                     if (clientpayload!=null) {
                         dumpBuffer("Client payload",clientpayload);
                         // decode the payload
@@ -67,7 +66,7 @@ public abstract class Listener extends Thread{
                         // address it
                         DatagramPacket response=new DatagramPacket(responsepacket,responsepacket.length,rxp.getAddress(),getReplyPort());
                         socket.send(response);
-                        System.out.println("Sent unlock packet to "+response.getAddress()+":"+response.getPort());
+                        NetworkUnlock.logger.info("Sent unlock packet to "+response.getAddress()+":"+response.getPort());
                     }
                 }
                 // these exceptions are per-packet and cause the unlock to stop, but the thread carries on and waits for the next packet.
@@ -176,7 +175,9 @@ public abstract class Listener extends Thread{
         if (!socket.isClosed()) { socket.close(); }
     }
 
-
+    private void debug(String message) {
+        if (DEBUG) { NetworkUnlock.logger.log(Level.FINE, message); }
+    }
 
     
 }

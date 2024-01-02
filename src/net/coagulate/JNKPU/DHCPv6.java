@@ -8,6 +8,7 @@ package net.coagulate.JNKPU;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.logging.Level;
 
 /** Implements the DHCPv6 specific parts of NKPU
  *
@@ -54,7 +55,7 @@ public class DHCPv6 extends Listener {
         
         // first byte is message type, for NKPU should be 11 - Information-request
         if (b[i]!=11) {
-            if (DEBUG) { System.out.println("Received DHCPv6 message type "+b[i]+"; ignoring."); } // probably a boring message, we get all dhcp type traffic, incl non bitlocker stuff which we need to ignore and let the real DHCP servers handle
+            debug("Received DHCPv6 message type "+b[i]+"; ignoring."); // probably a boring message, we get all dhcp type traffic, incl non bitlocker stuff which we need to ignore and let the real DHCP servers handle
             return null;
         }
         i++;     
@@ -69,7 +70,7 @@ public class DHCPv6 extends Listener {
         while (i<b.length) {
             int option=(b[i]<<8)+b[i+1]; i+=2;
             int length=(b[i]<<8)+b[i+1]; i+=2;
-            if (DEBUG) { System.out.println("DHCPv6 - option "+option+" length "+length); }
+            debug("DHCPv6 - option "+option+" length "+length);
             // OPTION_VENDOR_CLASS (16), used as a bitlocker marker
             if (option==16) {  
                 // if this is bitlocker it's a very 'static' structure, of known length
@@ -83,13 +84,13 @@ public class DHCPv6 extends Listener {
                         byte[] optiondata=new byte[9];
                         System.arraycopy(b, i2, optiondata, 0, 9);
                         String content=new String(optiondata);
-                        if (content.equals("BITLOCKER")) { marker=true; if (DEBUG) { System.out.println("Located the Bitlocker magic number header"); } } // yay
-                        else { if (DEBUG) { System.out.println("Magic marker of BITLOCKER came out as '"+content+"'"); } }
+                        if (content.equals("BITLOCKER")) { marker=true; debug("Located the Bitlocker magic number header"); } // yay
+                        else { debug("Magic marker of BITLOCKER came out as '"+content+"'"); }
                     } else {
-                        if (DEBUG) { System.out.println("Unexpected vendor field enterprise ID"); for (int j=0;j<4;j++) { System.out.println("Magic#"+j+":"+Integer.toHexString(b[i+j] & 0xff)); } }
+                        debug("Unexpected vendor field enterprise ID"); for (int j=0;j<4;j++) { debug("Magic#"+j+":"+Integer.toHexString(b[i+j] & 0xff)); }
                     }
                 } else {
-                    if (DEBUG) { System.out.println("Unexpected length of vendorclass "+length+" expecting 15"); }
+                    debug("Unexpected length of vendorclass "+length+" expecting 15");
                 }
             }
             // OPTION_VENDOR_OPTS (17), used for storing the ADM protected key package, or whatever its called
@@ -100,21 +101,21 @@ public class DHCPv6 extends Listener {
                     index+=4; // skip enterprise number
                     index+=4+20; // assume suboption code 1 'hash'
                     index+=4; // should skip header of suboptioncode 2 with suboptionlength 256
-                    if (DEBUG) { System.out.println("Located the ADM package"); }
+                    debug("Located the ADM package");
                 } else {
-                    if (DEBUG) { System.out.println("Unexpected vendor options data length, would be 288 for bitlocker, is "+length); }
+                    debug("Unexpected vendor options data length, would be 288 for bitlocker, is "+length);
                 }
             }
             i+=length;
         }
         // must have the BITLOCKER tag in the packet
         if (!marker) {
-            if (DEBUG) { System.out.println("There was no bitlocker header on the received packet"); }
+            debug("There was no bitlocker header on the received packet");
             return null;
         }
         // must have found the payload
         if (index==0) {
-            if (DEBUG) { System.out.println("Missing the DHCPv6 ADM package"); }
+            debug("Missing the DHCPv6 ADM package");
             return null;
         }
         
@@ -198,7 +199,7 @@ public class DHCPv6 extends Listener {
         while (i<b.length) {
             int option=(b[i]<<8)+b[i+1]; i+=2;
             int length=(b[i]<<8)+b[i+1]; i+=2;
-            if (DEBUG) { System.out.println("DHCPv6 - option "+option+" length "+length); }
+            debug("DHCPv6 - option "+option+" length "+length);
             // OPTION_VENDOR_CLASS (16), used as a bitlocker marker
             if (option==getoption) {  
                 byte[] output=new byte[length+4];
@@ -210,5 +211,8 @@ public class DHCPv6 extends Listener {
         return null;
         
     }
-    
+ 
+    private void debug(String message) {
+        if (DEBUG) { NetworkUnlock.logger.log(Level.FINE,message); }
+    }
 }

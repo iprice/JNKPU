@@ -7,6 +7,7 @@ package net.coagulate.JNKPU;
 
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.logging.Level;
 
 /** Implements the DHCPv4 specific parts of NKPU
  *
@@ -38,9 +39,8 @@ public class DHCPv4 extends Listener {
         
         // next 4 bytes should be the "magic number" 0x63 0x82 0x53 0x63 (see RFC1497 - bootp vendor extensions)
         if (b[i]!=(byte)0x63 || b[i+1]!=(byte)0x82 || b[i+2]!=(byte)0x53 || b[i+3]!=(byte)0x63) {
-                if (DEBUG) { System.out.println("BOOTP packet received with invalid vendor extension magic cookie");  // this is probably not interesting since we receive /all/ dhcp/bootp traffic
-                        //for (int j=0;j<4;j++) { System.out.println("Magic#"+j+":"+Integer.toHexString(b[i+j] & 0xff)); }
-                }
+                debug("BOOTP packet received with invalid vendor extension magic cookie");  // this is probably not interesting since we receive /all/ dhcp/bootp traffic
+                //for (int j=0;j<4;j++) { System.out.println("Magic#"+j+":"+Integer.toHexString(b[i+j] & 0xff)); }
                 return null;
         }
         i+=4;
@@ -74,7 +74,7 @@ public class DHCPv4 extends Listener {
                                     // also skip 1 byte data length (redundant?), suboption code, and suboption length, both of which are 1 byte and "well known"
                                     index2+=3;
                             } else {
-                                    if (DEBUG) { System.out.println("Unexpected vendor field enterprise ID"); for (int j=0;j<4;j++) { System.out.println("Magic#"+j+":"+Integer.toHexString(b[i+j] & 0xff)); } }
+                                    debug("Unexpected vendor field enterprise ID"); for (int j=0;j<4;j++) { debug("Magic#"+j+":"+Integer.toHexString(b[i+j] & 0xff)); }
                             }
 
                     }
@@ -94,19 +94,19 @@ public class DHCPv4 extends Listener {
 
         // we exited, should be because of vendor END code
         if (b[i]!=(byte)255) {
-            if (DEBUG) { System.out.println("NOTE: Parsing of packet ended without END marker"); }
+            debug("NOTE: Parsing of packet ended without END marker");
             return null;
         }
 
         // must be the BITLOCKER tag in the packet
         if (!marker) {
-            if (DEBUG) { System.out.println("There was no bitlocker header on the received packet"); }
+            debug("There was no bitlocker header on the received packet");
             return null;
         }
         // must have found both halves of the payload
         if (index1==0 || index2==0) {
-            if (index1==0 && DEBUG) { System.out.println("Missing part one of the ADM package"); }
-            if (index2==0 && DEBUG) { System.out.println("Missing part two of the ADM package"); }
+            if (index1==0) { debug("Missing part one of the ADM package"); }
+            if (index2==0) { debug("Missing part two of the ADM package"); }
             return null;
         }
         
@@ -170,6 +170,10 @@ public class DHCPv4 extends Listener {
         return 68; // such a complex method :) see IANA assignments for "Well Known Ports", this is officially known as BOOTPC, Boot Protocol Client port.
     }
     
-
+    private void debug(String message) {
+        if (DEBUG) {
+            NetworkUnlock.logger.log(Level.FINE,message);
+        }
+    }
     
 }
