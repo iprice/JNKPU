@@ -77,7 +77,7 @@ public abstract class Listener extends Thread{
         // these exceptions are run() wide and cause the entire thread to exit, whoops :P
         catch (SocketException e)
         {
-            System.err.println("FATAL: Socket error with "+socket+" - "+e.toString());
+            if (!socket.isClosed()) { System.err.println("FATAL: Socket error with "+socket+" - "+e.toString()); }
         } catch (IOException ex) {
             System.err.println("FATAL: IO Exception with "+socket+" - "+ex.toString());
         }
