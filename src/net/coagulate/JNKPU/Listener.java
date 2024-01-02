@@ -171,7 +171,10 @@ public abstract class Listener extends Thread{
         return ck;
     }
     
-
+    public void close() {
+        if (socket==null) { return; }
+        if (!socket.isClosed()) { socket.close(); }
+    }
 
 
 
