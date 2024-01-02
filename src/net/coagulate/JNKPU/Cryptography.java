@@ -5,26 +5,24 @@
  */
 package net.coagulate.JNKPU;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.bouncycastle.crypto.engines.AESEngine;
+import org.bouncycastle.crypto.modes.CCMBlockCipher;
+import org.bouncycastle.crypto.params.AEADParameters;
+import org.bouncycastle.crypto.params.KeyParameter;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.security.auth.DestroyFailedException;
+import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.engines.AESEngine;
-import org.bouncycastle.crypto.modes.CCMBlockCipher;
-import org.bouncycastle.crypto.params.AEADParameters;
-import org.bouncycastle.crypto.params.KeyParameter;
 
 /**  Cryptographic hooks for NKPU.
  *
@@ -81,6 +79,16 @@ public class Cryptography {
             System.exit(1);
         }
     }
+    
+    /** Unloads the private key.
+     * This method assumes the key's destroy() has any meaningful security.  The documentation says it does, which is nice.
+     */
+    public static void unloadPrivateKey() throws DestroyFailedException {
+        if (key==null) { return; }
+        key.destroy();
+        key=null;
+    }
+    
     /** Decrypt client provided RSA payload
      * The client sends us the CK+SK all encrypted with our public key.  Here we decrypt that payload.
      * @param clientpayload The encrypted CK+SK payload
