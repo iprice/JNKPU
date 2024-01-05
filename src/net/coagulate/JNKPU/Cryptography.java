@@ -83,9 +83,12 @@ public class Cryptography {
     /** Unloads the private key.
      * This method assumes the key's destroy() has any meaningful security.  The documentation says it does, which is nice.
      */
-    public static void unloadPrivateKey() throws DestroyFailedException {
+    public static void unloadPrivateKey() {
         if (key==null) { return; }
-        key.destroy();
+        try { key.destroy(); }
+        catch (DestroyFailedException e) {
+            NetworkUnlock.logger.info("Key destruction failed, this seems largely expected, unfortunately.");
+        }
         key=null;
     }
     
