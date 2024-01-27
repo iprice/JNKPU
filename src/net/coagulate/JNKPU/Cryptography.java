@@ -8,6 +8,7 @@ package net.coagulate.JNKPU;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.CCMBlockCipher;
+import org.bouncycastle.crypto.modes.CCMModeCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
 
@@ -134,7 +135,7 @@ public class Cryptography {
             // the main receiver code handles the re-ordering
 
             // a CCM engine, based around AES
-            CCMBlockCipher ccm=new CCMBlockCipher(new AESEngine());
+            CCMModeCipher ccm=CCMBlockCipher.newInstance(AESEngine.newInstance());
             // the relevant parameters - the key, 16 octets of MAC, 12 byte zero nonce, and no additional authenticated data
             ccm.init(true,new AEADParameters(new KeyParameter(sk),16*8,nonce,empty));
             // output must be this long given the 44 byte input
